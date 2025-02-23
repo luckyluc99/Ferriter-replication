@@ -182,7 +182,7 @@ def calculate_weekly_returns(file_path):
       file_path (str): Path to the CSV file containing intraday data.
 
     Returns:
-      pd.DataFrame: DataFrame with weekly log returns and the week's starting date as the index.
+      pd.DataFrame: DataFrame with weekly log returns and the week's end date as the index.
     """
     # Read the CSV file and parse Date and Time into Datetime
     df = pd.read_csv(file_path, parse_dates={'Datetime': ['Date', 'Time']})
@@ -192,5 +192,5 @@ def calculate_weekly_returns(file_path):
     df_daily = df['Close'].resample('D').agg(['first', 'last'])
     df_daily['daily_return'] = np.log(df_daily['last'] / df_daily['first'])
 
-    df_weekly = df_daily['daily_return'].resample('W-SAT').sum()
+    df_weekly = df_daily['daily_return'].resample('W-SAT').sum() * 100
     return df_weekly

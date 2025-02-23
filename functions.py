@@ -145,7 +145,7 @@ def get_impact_coefficients_data(data_dir, output_dir, abbrvs = [US_abbreviation
                 equity_value_30 = data_equity.loc[data_equity['DateTime'] == date_time_30, 'Open'].iloc[0]
             
                 # calculate the intraday return
-                intraday_return_equity = np.log(equity_value_30 / equity_value_15)
+                intraday_return_equity = 100 * np.log(equity_value_30 / equity_value_15)
                 
                 # get the index of the current macro event
                 current_index_equity = np.where(macro_vars_names == row['Event'])[0][0]
@@ -172,7 +172,7 @@ def get_impact_coefficients_data(data_dir, output_dir, abbrvs = [US_abbreviation
                 bond_value_15 = data_bond.loc[data_bond['DateTime'] == date_time_15, 'Open'].iloc[0]
                 bond_value_30 = data_bond.loc[data_bond['DateTime'] == date_time_30, 'Open'].iloc[0]
                 
-                intraday_return_bond = np.log(bond_value_30 / bond_value_15)
+                intraday_return_bond = 100 * np.log(bond_value_30 / bond_value_15)
 
                 # get the index of the current macro event
                 current_index_bond = np.where(macro_vars_names == row['Event'])[0][0]
@@ -426,3 +426,17 @@ def get_mispricing_scores(output_dir, abbreviations = ["US"]):
         bond_df.index.name = 'Date'
         bond_df.rename(columns={'mispricing_score': 'Mispricing'}, inplace=True)
         bond_df.to_csv(os.path.join(output_dir, f"mispricing_bond_{abbr}.csv"))
+
+        # Filter equity mispricing score for dates between 2015-01-01 and 2019-12-31
+        equity_df = mispricing_score_dfs['equity'].copy()
+        equity_df = equity_df[(equity_df.index >= '2015-01-01') & (equity_df.index <= '2019-12-31')]
+        equity_df.index.name = 'Date'
+        equity_df.rename(columns={'mispricing_score': 'Mispricing'}, inplace=True)
+        equity_df.to_csv(os.path.join(output_dir, f"mispricing_equity_{abbr}_2015-2019.csv"))
+
+        # Filter bond mispricing score for dates between 2015-01-01 and 2019-12-31
+        bond_df = mispricing_score_dfs['bond'].copy()
+        bond_df = bond_df[(bond_df.index >= '2015-01-01') & (bond_df.index <= '2019-12-31')]
+        bond_df.index.name = 'Date'
+        bond_df.rename(columns={'mispricing_score': 'Mispricing'}, inplace=True)
+        bond_df.to_csv(os.path.join(output_dir, f"mispricing_bond_{abbr}_2015-2019.csv"))
